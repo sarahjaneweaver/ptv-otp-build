@@ -1,0 +1,105 @@
+#!/bin/bash
+
+
+#Basically following instructions from http://docs.opentripplanner.org/en/latest/Basic-Usage/
+
+# set up vars
+#BASE_PATH=~/Projects/VicTripathon/otp
+BASE_PATH=~/Projects/VicTripathon/otp
+
+OTP_VERSION=0.18.0
+
+# get the files
+mkdir -p $BASE_PATH
+
+
+if [ ! -d $BASE_PATH ]; then
+    echo Base path not found aborting
+    exit 1
+fi
+
+pushd $BASE_PATH > /dev/null
+
+mkdir -p rawdata
+pushd rawdata > /dev/null
+
+#OTP
+if [ ! -f otp-$OTP_VERSION.jar ]; then
+    echo Getting OTP jar
+    wget http://dev.opentripplanner.org/jars/otp-$OTP_VERSION.jar
+fi
+
+#GTFS data
+if [ ! -f vic-gtfs.zip ]; then
+    if [ ! -f gtfs.zip ]; then
+        echo Getting PTV GTFS data
+        wget http://data.ptv.vic.gov.au/downloads/gtfs.zip
+    fi 
+    mv gtfs.zip vic-gtfs.zip
+fi
+
+#OSM data
+if [ ! -f australia-latest.osm.pbf ]; then
+    echo Getting Australian OSM data
+    wget http://download.geofabrik.de/australia-oceania/australia-latest.osm.pbf
+fi
+
+popd > /dev/null
+
+
+#unpack gtfs data
+echo Unpacking GTFS data for victoria
+
+mkdir -p tmp-vic
+cp rawdata/vic-gtfs.zip tmp-vic
+pushd tmp-vic > /dev/null
+
+unzip -n vic-gtfs.zip
+
+mv 1/google_transit.zip vic-vline-train-gtfs.zip
+mv 2/google_transit.zip vic-metro-train-gtfs.zip
+mv 3/google_transit.zip vic-metro-tram-gtfs.zip
+mv 4/google_transit.zip vic-metro-bus-gtfs.zip
+mv 5/google_transit.zip vic-vline-bus-gtfs.zip
+mv 6/google_transit.zip vic-regional-bus-gtfs.zip
+mv 8/google_transit.zip vic-nightrider-gtfs.zip
+mv 10/google_transit.zip vic-interstate-gtfs.zip
+mv 11/google_transit.zip vic-skybus-gtfs.zip
+
+
+popd > /dev/null
+
+
+#put files in place and create directory heirarchy
+
+echo shuffling stuff
+
+mkdir -p bin
+if [ ! -f bin/otp-$OTP_VERSION.jar ]; then
+    cp rawdata/otp-$OTP_VERSION.jar bin
+fi
+
+mkdir -p graphs/victoria
+
+if [ ! -f graphs/victoria/australia-latest.osm.pbf ]; then
+    cp rawdata/australia-latest.osm.pbf graphs/victoria
+fi
+
+#if [ ! -f graphs/victoria/vic-*-gtfs.zip ]; then
+    cp tmp-vic/vic-*-gtfs.zip graphs/victoria
+#fi
+
+# remove tmp stuff
+
+echo clearing out temporary files
+rm -rf tmp-vic
+
+
+#build graphs
+
+if [ ! -f graphs/victoria/Graph.obj ]; then
+    echo Building otp graph for victoria
+    java -Xmx8G -jar bin/otp-$OTP_VERSION.jar --basePath $BASE_PATH --build graphs/victoria/ --preFlight
+fi
+
+popd > /dev/null

@@ -1,0 +1,24 @@
+#!/bin/bash
+
+
+#Basically following instructions from http://docs.opentripplanner.org/en/latest/Basic-Usage/
+
+# set up vars
+#BASE_PATH=~/Projects/VicTripathon/otp
+BASE_PATH=~/Projects/VicTripathon/otp
+
+OTP_VERSION=0.18.0
+
+
+if [ ! -d $BASE_PATH ]; then
+    echo Base path not found aborting
+    exit 1
+fi
+
+pushd $BASE_PATH > /dev/null
+
+
+java -Xmx8G -jar bin/otp-$OTP_VERSION.jar --basePath $BASE_PATH --autoScan --server
+
+
+popd
