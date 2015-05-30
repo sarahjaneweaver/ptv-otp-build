@@ -2,14 +2,14 @@
 Scripts to build an OTP instance using PTC GTFS data
 
 
-What you need
+=== WHAT YOU NEED ===
 
 1. a UNIX - tested on OSX and Ubuntu so far
 
 2. a JDK - tested with Oracle JDK 8u45 
 
 
-Basic first time usage instuctions
+=== FIRST TIME USAGE ===
 
 1. clone this repo
 
@@ -26,7 +26,7 @@ Basic first time usage instuctions
 6. use it
 
 
-Starting the server after you've run the boot strap
+=== STARTING A SERVER LATER ===
 
 1. swicth to the directory containing the repo
 
@@ -35,3 +35,10 @@ Starting the server after you've run the boot strap
 3. point your browser to localhost:8080 when you see the Grizzly Server running message
 
 4. use it
+
+
+=== FURTHER READING ===
+
+http://www.opentripplanner.org
+
+
